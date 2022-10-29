@@ -8,4 +8,6 @@ import (
 func SetupRoutes(app *gin.Engine) {
 	app.POST("/login", controller.Login)
 	app.POST("/signup", controller.Signup)
+	app.POST("/verify", controller.VerifyOtp)
+	app.POST("/reset", controller.ResetPassword)
 }
