@@ -1,15 +1,25 @@
 package util
 
 import (
+	"bytes"
+	"html/template"
+	"log"
+	"net/smtp"
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+)
+
+const (
+	SMTP_HOST = "smtp.gmail.com"
+	SMTP_PORT = "587"
 )
 
 func GenerateToken(username string, subject string, expirationTime time.Duration) (string, error) {
 	registeredClaims := jwt.RegisteredClaims{
-		Issuer: username,
+		Issuer:  username,
 		Subject: subject,
 		ExpiresAt: &jwt.NumericDate{
 			Time: time.Now().Add(time.Hour * expirationTime),
@@ -82,4 +92,35 @@ func VerifyToken(tokenString string) (*jwt.RegisteredClaims, error) {
 	}
 
 	return &registeredClaims, nil
+}
+
+func SendEmail(receiverEmail string, otp int) {
+	senderEmail := os.Getenv("SENDER_EMAIL")
+	senderPassword := os.Getenv("SENDER_PASSWORD")
+	subject := "Subject: Verify your account\n"
+	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+
+	auth := smtp.PlainAuth("", senderEmail, senderPassword, SMTP_HOST)
+
+	var t *template.Template
+	var err error
+
+	t, err = t.ParseFiles("template/template.html")
+	if err != nil {
+		log.Fatalln("HTML PARSING ERROR", err.Error())
+	}
+
+	buffer := new(bytes.Buffer)
+
+	t.Execute(buffer, gin.H{
+		"otp": otp,
+	})
+
+	msg := []byte(subject + mime + buffer.String())
+
+	if err = smtp.SendMail(SMTP_HOST + ":" + SMTP_PORT, auth, senderEmail, []string{receiverEmail}, msg); err != nil {
+		log.Fatalln("SEND EMAIL ERROR", err.Error())
+	}
+
+	log.Println("OTP SENT")
 }

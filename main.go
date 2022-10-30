@@ -25,6 +25,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	app.LoadHTMLFiles("template/template.html")
+
 	route.SetupRoutes(app)
 
 	port := os.Getenv("PORT")

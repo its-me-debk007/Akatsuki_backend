@@ -2,6 +2,7 @@ package controller
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -82,19 +83,6 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// var user model.User
-	// database.DB.First(&user, "email = ?", input.Email)
-
-	// if user.Email != "" {
-	// 	c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"email already registered"})
-	// 	return
-	// }
-
-	// if user.Username != "" {
-	// 	c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"username already taken"})
-	// 	return
-	// }
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{err.Error()})
@@ -117,13 +105,45 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "successfully signed up",
-	})
+	c.JSON(http.StatusOK, model.Message{"successfully signed up"})
 }
 
 func VerifyOtp(c *gin.Context) {
+	input := new(struct {
+		Email string `json:"email"    binding:"required,email"`
+		Otp   int    `json:"otp"    binding:"required"`
+	})
 
+	if err := c.ShouldBindJSON(input); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{err.Error()})
+		return
+	}
+
+	input.Email = strings.TrimSpace(input.Email)
+	input.Email = strings.ToLower(input.Email)
+
+	otpStruct := model.Otp{}
+
+	database.DB.First(&otpStruct, "email = ?", input.Email)
+
+	if otpStruct.Email == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp not generated yet"})
+		return
+	}
+
+	if timeDiff := time.Now().Sub(otpStruct.CreatedAt); timeDiff > (time.Minute * 5) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp expired"})
+		return
+	}
+
+	if otpStruct.Otp != input.Otp {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp incorrect"})
+		return
+	}
+
+	database.DB.Model(&model.User{}).Where("email = ?", input.Email).Update("is_verified", true)
+
+	c.JSON(http.StatusOK, model.Message{"otp verified successfully"})
 }
 
 func ResetPassword(c *gin.Context) {
@@ -154,8 +174,47 @@ func ResetPassword(c *gin.Context) {
 
 	input.Password = string(hashedPassword)
 
-	if err := database.DB.Model(&model.User{}).Where("email = ?", input.Email).Update("password", input.Password); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, err.Error.Error())
+	database.DB.Model(&model.User{}).Where("email = ?", input.Email).Update("password", input.Password)
+
+	c.JSON(http.StatusOK, model.Message{"successfully changed password"})
+}
+
+func SendOtp(c *gin.Context) {
+	input := new(struct {
+		Email string `json:"email"    binding:"required,email"`
+	})
+
+	if err := c.ShouldBindJSON(input); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{err.Error()})
 		return
 	}
+
+	input.Email = strings.TrimSpace(input.Email)
+	input.Email = strings.ToLower(input.Email)
+
+	var user model.User
+
+	database.DB.First(&user, "email = ?", input.Email)
+
+	if user.Email == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"user not registered"})
+		return
+	}
+
+	otp := rand.Intn(900000) + 100000
+
+	go util.SendEmail(input.Email, otp)
+
+	otpStruct := model.Otp{
+		Email:     input.Email,
+		Otp:       otp,
+		CreatedAt: time.Now(),
+	}
+
+	if db := database.DB.Save(&otpStruct); db.Error != nil {
+		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{db.Error.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.Message{"otp sent successfully"})
 }
