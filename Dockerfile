@@ -1,5 +1,7 @@
 FROM golang:alpine
 
+LABEL maintainer="Debashish Kundu"
+
 WORKDIR /app
 
 COPY go.mod ./
