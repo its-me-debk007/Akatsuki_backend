@@ -20,7 +20,12 @@ func ConnectDatabase() {
 	}
 
 	DB = db
-	if err := db.AutoMigrate(new(model.User), new(model.Otp)); err != nil {
+	if err := db.AutoMigrate(
+		new(model.User),
+		new(model.Otp),
+		new(model.Post),
+		new(model.Profile),
+	); err != nil {
 		log.Fatalln("AUTO_MIGRATION_ERROR")
 	}
 }

@@ -11,4 +11,6 @@ func SetupRoutes(app *gin.Engine) {
 	app.POST("/send_otp", controller.SendOtp)
 	app.POST("/verify", controller.VerifyOtp)
 	app.POST("/reset", controller.ResetPassword)
+
+	app.POST("/post/create", controller.CreatePost)
 }

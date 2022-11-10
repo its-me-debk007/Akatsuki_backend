@@ -2,14 +2,22 @@ package util
 
 import (
 	"bytes"
+	"context"
+	"errors"
+	"fmt"
 	"html/template"
 	"log"
+	"mime/multipart"
 	"net/smtp"
 	"os"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/its-me-debk007/Akatsuki_backend/database"
+	"github.com/its-me-debk007/Akatsuki_backend/model"
 )
 
 const (
@@ -78,7 +86,7 @@ func IsValidPassword(password string) string {
 	}
 }
 
-func VerifyToken(tokenString string) (*jwt.RegisteredClaims, error) {
+func ParseToken(tokenString string) (string, error) {
 	secretKey := os.Getenv("SECRET_KEY")
 
 	registeredClaims := jwt.RegisteredClaims{}
@@ -88,10 +96,18 @@ func VerifyToken(tokenString string) (*jwt.RegisteredClaims, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &registeredClaims, nil
+	if db := database.DB.First(&model.User{}, "email = ?", registeredClaims.Issuer); db.Error != nil {
+		return "", errors.New("user not signed up")
+	}
+
+	if time.Now().Sub(registeredClaims.ExpiresAt.Time) >= 0 {
+		return "", errors.New("token expired")
+	}
+
+	return registeredClaims.Issuer, nil
 }
 
 func SendEmail(receiverEmail string, otp int) {
@@ -118,9 +134,33 @@ func SendEmail(receiverEmail string, otp int) {
 
 	msg := []byte(subject + mime + buffer.String())
 
-	if err = smtp.SendMail(SMTP_HOST + ":" + SMTP_PORT, auth, senderEmail, []string{receiverEmail}, msg); err != nil {
+	if err = smtp.SendMail(SMTP_HOST+":"+SMTP_PORT, auth, senderEmail, []string{receiverEmail}, msg); err != nil {
 		log.Fatalln("SEND EMAIL ERROR", err.Error())
 	}
 
 	log.Println("OTP SENT")
+}
+
+func UploadMedia(file multipart.File, id time.Time) (string, error) {
+	cldCloudName, cldApiKey, cldApiSecret := os.Getenv("CLOUDINARY_CLOUD_NAME"), os.Getenv("CLOUDINARY_API_KEY"), os.Getenv("CLOUDINARY_API_SECRET")
+
+	cld, _ := cloudinary.NewFromParams(
+		cldCloudName,
+		cldApiKey,
+		cldApiSecret,
+	)
+	ctx := context.Background()
+
+	resp, err := cld.Upload.Upload(
+		ctx,
+		file,
+		uploader.UploadParams{
+			PublicID: fmt.Sprintf("docs/sdk/go/akatsuki_post_%v", id),
+		})
+
+	if err != nil {
+		return "", fmt.Errorf("CLOUDINARY_ERROR:- %s", err.Error())
+	}
+
+	return resp.SecureURL, nil
 }
