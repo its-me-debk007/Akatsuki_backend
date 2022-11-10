@@ -1,12 +1,46 @@
 version: '3.9'
+
 services:
   db:
-    image: postgres
+    image: postgres:alpine
+    container_name: "postgres_database"
     volumes:
       - ./data/db:/var/lib/postgres/data
     ports:
-      - "5432:5432"
+      - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345
       - POSTGRES_DB=akatsuki
+    networks:
+      - fullstack
+
+  web:
+    build: .
+    container_name: "rest_api"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "12345"
+      POSTGRES_DB: "akatsuki"
+      DATABASE_URL: "postgres://postgres:12345@db:5432/akatsuki"
+      CLOUDINARY_API_KEY: "574267344941376"
+      CLOUDINARY_API_SECRET: "LVaX20KZKoxyS4DnwCEeSuBfPag"
+      CLOUDINARY_CLOUD_NAME: "debk007cloud"
+      PORT: "8080"
+      SECRET_KEY: "7u6XS3.XXLCnM_v"
+      SENDER_EMAIL: "11testee22@gmail.com"
+      SENDER_PASSWORD: "ipfxskpighxzvyby"
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    networks:
+      - fullstack
+
+volumes:
+  database_postgres:
+
+
+networks:
+  fullstack:
+    driver: bridge
