@@ -14,3 +14,4 @@ func SetupRoutes(app *gin.Engine) {
 
 	app.POST("/post/create", controller.CreatePost)
 	app.GET("/post/random", controller.RandomPosts)
+}

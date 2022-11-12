@@ -23,6 +23,9 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowCredentials: true,
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
 	}))
 
 	app.LoadHTMLFiles("template/template.html")
