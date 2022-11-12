@@ -11,7 +11,7 @@ import (
 )
 
 func CreatePost(c *gin.Context) {
-	token := c.GetHeader("Authorization")[8:]
+	token := c.GetHeader("Authorization")[7:]
 
 	userEmail, err := util.ParseToken(token)
 
@@ -62,4 +62,8 @@ func CreatePost(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, model.Message{"post created succesfully"})
+}
+
+func RandomPosts(c *gin.Context) {
+	
 }

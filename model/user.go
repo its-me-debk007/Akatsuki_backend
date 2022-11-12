@@ -9,5 +9,5 @@ type User struct {
 	Username   string `binding:"required"    gorm:"unique"`
 	Password   string `binding:"required"`
 	IsVerified bool
-	ProfilePic string `binding:"required"`
+	// ProfilePic string `binding:"required"`
 }

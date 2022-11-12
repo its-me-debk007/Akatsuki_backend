@@ -13,4 +13,4 @@ func SetupRoutes(app *gin.Engine) {
 	app.POST("/reset", controller.ResetPassword)
 
 	app.POST("/post/create", controller.CreatePost)
-}
+	app.GET("/post/random", controller.RandomPosts)

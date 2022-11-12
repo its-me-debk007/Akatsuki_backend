@@ -13,6 +13,6 @@ COPY . ./
 
 RUN go build -o akatsuki
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD [ "./akatsuki" ]

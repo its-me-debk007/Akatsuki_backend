@@ -7,14 +7,15 @@ import (
 )
 
 type Post struct {
-	Id          uint64 `gorm:"primaryKey;autoIncrement"`
+	Id          uint64 `gorm:"primary_key;auto_increment"`
 	CreatedAt   time.Time
-	Media       pq.StringArray
+	Media       pq.StringArray `gorm:"type:text[]"`
 	Description string
+	Rating      float32 // out of 5
 	Likes       string
 	// Comments
 	LikedByUser     bool
 	CommentedByUser bool
-	// AuthorID        uint64
-	Author          User `gorm:"foreignKey:Email"`
+	AuthorEmail     string `json:"-"`
+	Author          User   `gorm:"foreign_key:AuthorEmail"`
 }

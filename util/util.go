@@ -96,7 +96,7 @@ func ParseToken(tokenString string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		return "", errors.New("invalid token")
 	}
 
 	if db := database.DB.First(&model.User{}, "email = ?", registeredClaims.Issuer); db.Error != nil {
@@ -111,6 +111,8 @@ func ParseToken(tokenString string) (string, error) {
 }
 
 func SendEmail(receiverEmail string, otp int) {
+	log.Printf("OTP:- %d\n", otp)
+
 	senderEmail := os.Getenv("SENDER_EMAIL")
 	senderPassword := os.Getenv("SENDER_PASSWORD")
 	subject := "Subject: Verify your account\n"

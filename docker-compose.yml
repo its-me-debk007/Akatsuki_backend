@@ -1,39 +1,43 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  db:
+
+  postgres_db:
     image: postgres:alpine
-    container_name: "postgres_database"
+
+    container_name: "postgres"
+
     volumes:
-      - ./data/db:/var/lib/postgres/data
+      - ./data/postgres:/var/lib/postgres/data
+
     ports:
-      - 5432:5432
+      - "5432:5432"
+
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345
       - POSTGRES_DB=akatsuki
+
+    deploy:
+      restart_policy:
+        condition: on-failure
+
     networks:
       - fullstack
 
   web:
     build: .
+
     container_name: "rest_api"
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "12345"
-      POSTGRES_DB: "akatsuki"
-      DATABASE_URL: "postgres://postgres:12345@db:5432/akatsuki"
-      CLOUDINARY_API_KEY: "574267344941376"
-      CLOUDINARY_API_SECRET: "LVaX20KZKoxyS4DnwCEeSuBfPag"
-      CLOUDINARY_CLOUD_NAME: "debk007cloud"
-      PORT: "8080"
-      SECRET_KEY: "7u6XS3.XXLCnM_v"
-      SENDER_EMAIL: "11testee22@gmail.com"
-      SENDER_PASSWORD: "ipfxskpighxzvyby"
+
     ports:
-      - 8080:8080
+      - "80:80"
+
+    # environvent values already taken from .env file
+
     depends_on:
-      - db
+      - postgres_db
+
     networks:
       - fullstack
 
