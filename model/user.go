@@ -7,7 +7,7 @@ type User struct {
 	Name       string `binding:"required"`
 	Email      string `binding:"required"    gorm:"primarykey"`
 	Username   string `binding:"required"    gorm:"unique"`
-	Password   string `binding:"required"`
-	IsVerified bool
+	Password   string `json:"-"    binding:"required"`
+	IsVerified bool   `json:"-"`
 	// ProfilePic string `binding:"required"`
 }

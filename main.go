@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -23,12 +24,10 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowCredentials: true,
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"Origin"},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch},
+		AllowHeaders:     []string{"Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
 	}))
-
-	app.LoadHTMLFiles("template/template.html")
 
 	route.SetupRoutes(app)
 

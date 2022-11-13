@@ -48,7 +48,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := util.GenerateToken(input.Email, "ACCESS", 24)
+	accessToken, err := util.GenerateToken(input.Email, "ACCESS", 24*7)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{err.Error()})
 		return

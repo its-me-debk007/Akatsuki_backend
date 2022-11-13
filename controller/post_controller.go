@@ -65,5 +65,27 @@ func CreatePost(c *gin.Context) {
 }
 
 func RandomPosts(c *gin.Context) {
-	
+	var posts []model.Post
+
+	database.DB.Raw("SELECT * FROM posts ORDER BY RANDOM() LIMIT 5 ;").Scan(&posts)
+
+	for i, post := range posts {
+
+		var author model.User
+		database.DB.First(&author, "email = ?", post.AuthorEmail)
+
+		post.Author = author
+
+		posts[i] = post
+	}
+
+	c.JSON(http.StatusOK, posts)
+}
+
+func Story(c *gin.Context) {
+	c.JSON(http.StatusOK, model.Message{"post created successfully"})
+}
+
+func Suggestion() {
+
 }
