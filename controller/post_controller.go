@@ -74,6 +74,7 @@ func RandomPosts(c *gin.Context) {
 		var author model.User
 		database.DB.First(&author, "email = ?", post.AuthorEmail)
 
+		author.Password = ""
 		post.Author = author
 
 		posts[i] = post
