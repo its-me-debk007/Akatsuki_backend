@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -90,11 +89,11 @@ func Signup(c *gin.Context) {
 	}
 
 	input.Password = string(hashedPassword)
-	input.CreatedAt = time.Now()
+	input.FillDefaults()
 
 	if err := database.DB.Create(&input); err.Error != nil {
 		var msg string
-		log.Println("dfgdbdyy", err.Error.Error()[62:70])
+
 		if err.Error.Error()[61:69] == "username" {
 			msg = "username already taken"
 		} else {

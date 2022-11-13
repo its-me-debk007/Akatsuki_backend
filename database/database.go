@@ -24,7 +24,6 @@ func ConnectDatabase() {
 		new(model.User),
 		new(model.Otp),
 		new(model.Post),
-		new(model.Profile),
 	); err != nil {
 		log.Fatalln("AUTO_MIGRATION_ERROR")
 	}

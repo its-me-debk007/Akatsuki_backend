@@ -82,10 +82,6 @@ func RandomPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, posts)
 }
 
-func Story(c *gin.Context) {
-	c.JSON(http.StatusOK, model.Message{"post created successfully"})
-}
-
 func Suggestion() {
 
 }
