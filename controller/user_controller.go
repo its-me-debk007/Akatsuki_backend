@@ -45,7 +45,7 @@ func Search(c *gin.Context) {
 		Name       string `json:"name"`
 		ProfilePic string `json:"profile_pic"`
 	}
-	database.DB.Model(&model.User{}).Find(&users, "username LIKE ?", query)
+	database.DB.Model(&model.User{}).Where("username LIKE ?", query).Or("name LIKE ?", query).Find(&users)
 
 	var posts []model.Post
 	database.DB.Model(&model.Post{}).Find(&posts, "description LIKE ?", query)
