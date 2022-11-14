@@ -74,7 +74,7 @@ func Profile(c *gin.Context) {
 	}
 
 	var posts []model.Post
-	database.DB.Find(&posts, "authorusername = ?", username)
+	database.DB.Find(&posts, "author_username = ?", username)
 
 	c.JSON(http.StatusOK, gin.H{
 		"about": user,
