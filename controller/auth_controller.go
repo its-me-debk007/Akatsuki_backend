@@ -89,7 +89,6 @@ func Signup(c *gin.Context) {
 	}
 
 	input.Password = string(hashedPassword)
-	input.FillDefaults()
 
 	if err := database.DB.Create(&input); err.Error != nil {
 		var msg string

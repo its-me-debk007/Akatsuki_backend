@@ -9,11 +9,11 @@ type User struct {
 	Username   string `binding:"required"    gorm:"unique"`
 	Password   string `json:",omitempty"    binding:"required"`
 	IsVerified bool   `json:"-"`
-	ProfilePic string
+	ProfilePic string `gorm:"default:https://res.cloudinary.com/debk007cloud/image/upload/v1668334132/low-resolution-splashes-wallpaper-preview_weaxun.jpg"`
 }
 
-func (user *User) FillDefaults() {
-	if user.ProfilePic == "" {
-		user.ProfilePic = "https://res.cloudinary.com/debk007cloud/image/upload/v1668334132/low-resolution-splashes-wallpaper-preview_weaxun.jpg"
-	}
-}
+// func (user *User) FillDefaults() {
+// 	if user.ProfilePic == "" {
+// 		user.ProfilePic = "https://res.cloudinary.com/debk007cloud/image/upload/v1668334132/low-resolution-splashes-wallpaper-preview_weaxun.jpg"
+// 	}
+// }

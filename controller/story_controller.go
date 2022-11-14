@@ -13,7 +13,6 @@ import (
 
 func CreateStory(c *gin.Context) {
 	token := c.GetHeader("Authorization")[7:]
-
 	userEmail, err := util.ParseToken(token)
 
 	if err != nil {
