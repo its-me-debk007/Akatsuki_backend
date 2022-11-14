@@ -1,0 +1,3 @@
+hide password in author field
+
+only send data which is necessary (abstraction)

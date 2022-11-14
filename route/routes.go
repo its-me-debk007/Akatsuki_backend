@@ -19,4 +19,6 @@ func SetupRoutes(app *gin.Engine) {
 	app.GET("/story", controller.GetStories)
 
 	app.GET("/user/follow", controller.Follow)
+
+	app.GET("/api/search", controller.Search)
 }

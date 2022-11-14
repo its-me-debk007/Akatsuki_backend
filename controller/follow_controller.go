@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -25,4 +26,24 @@ func Follow(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, model.Message{"username invalid"})
 		return
 	}
+}
+
+func Search(c *gin.Context) {
+	query := c.Query("query")
+	query = fmt.Sprintf("%%%s%%", query)
+
+	var users []struct {
+		Username   string `json:"username"`
+		Name       string `json:"name"`
+		ProfilePic string `json:"profile_pic"`
+	}
+	database.DB.Model(&model.User{}).Find(&users, "username LIKE ?", query)
+
+	var posts []model.Post
+	database.DB.Model(&model.Post{}).Find(&posts, "description LIKE ?", query)
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": users,
+		"posts": posts,
+	})
 }
