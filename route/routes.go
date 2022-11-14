@@ -16,5 +16,5 @@ func SetupRoutes(app *gin.Engine) {
 	app.GET("/post/random", controller.RandomPosts)
 
 	app.POST("/story/create", controller.CreateStory)
-	
+	app.GET("/story", controller.GetStories)
 }

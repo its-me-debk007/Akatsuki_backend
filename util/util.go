@@ -47,6 +47,30 @@ func GenerateToken(username string, subject string, expirationTime time.Duration
 	return token, nil
 }
 
+func ParseToken(tokenString string) (string, error) {
+	secretKey := os.Getenv("SECRET_KEY")
+
+	registeredClaims := jwt.RegisteredClaims{}
+
+	_, err := jwt.ParseWithClaims(tokenString, &registeredClaims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return "", errors.New("invalid token")
+	}
+
+	if db := database.DB.First(&model.User{}, "email = ?", registeredClaims.Issuer); db.Error != nil {
+		return "", errors.New("user not signed up")
+	}
+
+	if time.Now().Sub(registeredClaims.ExpiresAt.Time) >= 0 {
+		return "", errors.New("token expired")
+	}
+
+	return registeredClaims.Issuer, nil
+}
+
 func IsValidPassword(password string) string {
 	isDigit, isLowercase, isUppercase, isSpecialChar := 0, 0, 0, 0
 	for _, ch := range password {
@@ -86,32 +110,8 @@ func IsValidPassword(password string) string {
 	}
 }
 
-func ParseToken(tokenString string) (string, error) {
-	secretKey := os.Getenv("SECRET_KEY")
-
-	registeredClaims := jwt.RegisteredClaims{}
-
-	_, err := jwt.ParseWithClaims(tokenString, &registeredClaims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
-
-	if err != nil {
-		return "", errors.New("invalid token")
-	}
-
-	if db := database.DB.First(&model.User{}, "email = ?", registeredClaims.Issuer); db.Error != nil {
-		return "", errors.New("user not signed up")
-	}
-
-	if time.Now().Sub(registeredClaims.ExpiresAt.Time) >= 0 {
-		return "", errors.New("token expired")
-	}
-
-	return registeredClaims.Issuer, nil
-}
-
 func SendEmail(receiverEmail string, otp int) {
-	log.Printf("OTP:- %d\n", otp)
+	log.Printf("OTP for %s:- %d\n", receiverEmail, otp)
 
 	senderEmail := os.Getenv("SENDER_EMAIL")
 	senderPassword := os.Getenv("SENDER_PASSWORD")

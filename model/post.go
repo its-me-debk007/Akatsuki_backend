@@ -7,7 +7,7 @@ import (
 )
 
 type Post struct {
-	Id          uint64 `gorm:"primary_key;auto_increment"`
+	Id          uint64 `gorm:"primary_key; auto_increment"`
 	CreatedAt   time.Time
 	Media       pq.StringArray `gorm:"type:text[]"`
 	Description string
