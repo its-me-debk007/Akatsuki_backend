@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -29,10 +30,8 @@ func Login(c *gin.Context) {
 	input.Password = strings.TrimSpace(input.Password)
 
 	var user model.User
-
-	database.DB.First(&user)
-
-	if user.Email == "" {
+	
+	if db := database.DB.First(&user, "email = ?", input.Email); db.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"no account found with given credentials"})
 		return
 	}
@@ -47,13 +46,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := util.GenerateToken(input.Email, "ACCESS", 24*7)
+	accessToken, err := util.GenerateToken(user.Username, "ACCESS", 24*7)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{err.Error()})
 		return
 	}
 
-	refreshToken, err := util.GenerateToken(input.Email, "REFRESH", 1)
+	refreshToken, err := util.GenerateToken(user.Username, "REFRESH", 1)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{err.Error()})
 		return
@@ -75,6 +74,8 @@ func Signup(c *gin.Context) {
 
 	input.Email = strings.TrimSpace(input.Email)
 	input.Email = strings.ToLower(input.Email)
+	input.Username = strings.TrimSpace(input.Username)
+	input.Name = strings.TrimSpace(input.Name)
 	input.Password = strings.TrimSpace(input.Password)
 
 	if validation := util.IsValidPassword(input.Password); validation != "ok" {
@@ -92,11 +93,12 @@ func Signup(c *gin.Context) {
 
 	if err := database.DB.Create(&input); err.Error != nil {
 		var msg string
+		log.Println("\n" + err.Error.Error() + "\n")
 
-		if err.Error.Error()[61:69] == "username" {
-			msg = "username already taken"
-		} else {
+		if err.Error.Error()[61:66] == "email" {
 			msg = "email already registered"
+		} else {
+			msg = "username already taken"
 		}
 
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{msg})

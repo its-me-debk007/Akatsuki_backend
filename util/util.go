@@ -60,11 +60,11 @@ func ParseToken(tokenString string) (string, error) {
 		return "", errors.New("invalid token")
 	}
 
-	if db := database.DB.First(&model.User{}, "email = ?", registeredClaims.Issuer); db.Error != nil {
+	if db := database.DB.First(&model.User{}, "username = ?", registeredClaims.Issuer); db.Error != nil {
 		return "", errors.New("user not signed up")
 	}
 
-	if time.Now().Sub(registeredClaims.ExpiresAt.Time) >= 0 {
+	if time.Since(registeredClaims.ExpiresAt.Time) >= 0 {
 		return "", errors.New("token expired")
 	}
 

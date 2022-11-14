@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -13,7 +14,8 @@ import (
 func CreatePost(c *gin.Context) {
 	token := c.GetHeader("Authorization")[7:]
 
-	userEmail, err := util.ParseToken(token)
+	username, err := util.ParseToken(token)
+	log.Println(username)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
@@ -51,9 +53,9 @@ func CreatePost(c *gin.Context) {
 	}
 
 	post := model.Post{
-		Description: description,
-		Media:       postCollection,
-		Author:      model.User{Email: userEmail},
+		Description:    description,
+		Media:          postCollection,
+		AuthorUsername: username,
 	}
 
 	if db := database.DB.Save(&post); db.Error != nil {
@@ -72,7 +74,7 @@ func RandomPosts(c *gin.Context) {
 	for i, post := range posts {
 
 		var author model.User
-		database.DB.First(&author, "email = ?", post.AuthorEmail)
+		database.DB.First(&author, "username = ?", post.AuthorUsername)
 
 		author.Password = ""
 		post.Author = author
