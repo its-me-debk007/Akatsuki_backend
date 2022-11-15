@@ -85,6 +85,6 @@ func RandomPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, posts)
 }
 
-func Suggestion() {
-
+func LikePost(c *gin.Context) {
+	
 }

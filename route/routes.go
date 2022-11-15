@@ -18,15 +18,18 @@ func SetupRoutes(app *gin.Engine) {
 
 	postGroup.POST("/create", controller.CreatePost)
 	postGroup.GET("/random", controller.RandomPosts)
+	postGroup.POST("/like", controller.LikePost)
 
 	storyGroup := app.Group("/story")
 
 	storyGroup.POST("/create", controller.CreateStory)
 	storyGroup.GET("/", controller.GetStories)
 
-	app.GET("/user/follow", controller.Follow)
+	userGroup := app.Group("/user")
 
-	app.GET("/api/search", controller.Search)
+	userGroup.GET("/follow", controller.Follow)
+	userGroup.GET("/profile", controller.Profile)
+	userGroup.GET("/suggestion", controller.Suggestion)
 
-	app.GET("/user/profile", controller.Profile)
+	app.GET("/search", controller.Search)
 }
