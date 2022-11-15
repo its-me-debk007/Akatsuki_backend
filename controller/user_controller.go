@@ -81,3 +81,7 @@ func Profile(c *gin.Context) {
 		"posts": posts,
 	})
 }
+
+func Suggestion(c * gin.Context) {
+
+}
