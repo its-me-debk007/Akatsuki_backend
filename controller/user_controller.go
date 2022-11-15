@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +12,7 @@ import (
 
 func Follow(c *gin.Context) {
 	token := c.GetHeader("Authorization")[7:]
-	userEmail, err := util.ParseToken(token)
-	log.Println(userEmail)
+	_, err := util.ParseToken(token)
 
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
@@ -82,6 +80,6 @@ func Profile(c *gin.Context) {
 	})
 }
 
-func Suggestion(c * gin.Context) {
+func Suggestion(c *gin.Context) {
 
 }
