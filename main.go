@@ -53,11 +53,14 @@ func middleWare(c *gin.Context) {
 		}
 
 		token := header[7:]
-		if _, err := util.ParseToken(token); err != nil {
+
+		username, err := util.ParseToken(token)
+		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
 			return
 		}
 
+		c.Request.Header.Set("username", username)
 	}
 	// c.Next()
 }

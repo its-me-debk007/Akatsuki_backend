@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -12,13 +11,7 @@ import (
 )
 
 func CreateStory(c *gin.Context) {
-	token := c.GetHeader("Authorization")[7:]
-	userEmail, err := util.ParseToken(token)
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
-		return
-	}
+	username := c.GetHeader("username")
 
 	form, err := c.MultipartForm()
 
@@ -50,9 +43,9 @@ func CreateStory(c *gin.Context) {
 	}
 
 	story := model.Story{
-		Media:     postCollection,
-		Author:    model.User{Email: userEmail},
-		ExpiresAt: time.Now().Add(time.Hour * 24),
+		Media:          postCollection,
+		AuthorUsername: username,
+		ExpiresAt:      time.Now().Add(time.Hour * 24),
 	}
 
 	if db := database.DB.Save(&story); db.Error != nil {
@@ -64,14 +57,5 @@ func CreateStory(c *gin.Context) {
 }
 
 func GetStories(c *gin.Context) {
-	token := c.GetHeader("Authorization")[7:]
 
-	userEmail, err := util.ParseToken(token)
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
-		return
-	}
-
-	log.Println(userEmail)
 }
