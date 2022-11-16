@@ -12,15 +12,8 @@ import (
 )
 
 func CreatePost(c *gin.Context) {
-	token := c.GetHeader("Authorization")[7:]
-
-	username, err := util.ParseToken(token)
-	log.Println(username)
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
-		return
-	}
+	username := c.GetHeader("username")
+	log.Println("Username is :- ", username)
 
 	form, err := c.MultipartForm()
 
