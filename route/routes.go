@@ -17,20 +17,20 @@ func SetupRoutes(app *gin.Engine) {
 			authGroup.POST("/reset", controller.ResetPassword)
 		}
 
-		postGroup := api.Group("/post")
+		postGroup := api.Group("/posts")
 		{
 			postGroup.POST("/create", controller.CreatePost)
 			postGroup.GET("/random", controller.RandomPosts)
 			postGroup.POST("/like", controller.LikePost)
 		}
 
-		storyGroup := api.Group("/story")
+		storyGroup := api.Group("/stories")
 		{
 			storyGroup.POST("/create", controller.CreateStory)
 			storyGroup.GET("/", controller.GetStories)
 		}
 
-		userGroup := api.Group("/user")
+		userGroup := api.Group("/users")
 		{
 			userGroup.GET("/follow", controller.Follow)
 			userGroup.GET("/profile", controller.Profile)
