@@ -39,6 +39,9 @@ func Search(c *gin.Context) {
 
 func Profile(c *gin.Context) {
 	username := c.Query("username")
+	if username == "" {
+		username = c.GetHeader("username")
+	}
 
 	var user model.User
 	if db := database.DB.First(&user, "username = ?", username); db.Error != nil {
