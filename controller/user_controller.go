@@ -31,6 +31,10 @@ func Search(c *gin.Context) {
 	var posts []model.Post
 	database.DB.Model(&model.Post{}).Find(&posts, "description LIKE ?", query)
 
+	for i := range posts {
+		database.DB.First(&posts[i].Author, "username = ?", posts[i].AuthorUsername)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"users": users,
 		"posts": posts,
