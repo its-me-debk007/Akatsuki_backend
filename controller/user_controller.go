@@ -63,5 +63,8 @@ func Profile(c *gin.Context) {
 }
 
 func Suggestion(c *gin.Context) {
+	var users []model.User
+	database.DB.Raw("SELECT * FROM users ORDER BY RANDOM() LIMIT 5").Scan(&users)
 
+	c.JSON(http.StatusOK, users)
 }
