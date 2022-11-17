@@ -46,7 +46,7 @@ func main() {
 func middleWare(c *gin.Context) {
 	url := c.Request.URL
 
-	if !(url.Path[:5] == "/auth" || url.Path == "/post/random") {
+	if !(url.Path[7:12] == "/auth" || url.Path == "/api/v1/posts/random") {
 		header := c.GetHeader("Authorization")
 		if header == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{"no token provided"})
