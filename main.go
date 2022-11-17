@@ -54,7 +54,7 @@ func middleWare(c *gin.Context) {
 
 		token := header[7:]
 
-		username, err := util.ParseToken(token)
+		username, err := util.ParseToken(token, true)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
 			return
