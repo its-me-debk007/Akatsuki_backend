@@ -29,6 +29,15 @@ func Login(c *gin.Context) {
 	input.Email = strings.ToLower(input.Email)
 	input.Password = strings.TrimSpace(input.Password)
 
+	var filteredPassword string
+	for _, ch := range input.Password {
+		if ch != '_' {
+			filteredPassword += string(ch)
+		}
+	}
+	
+	input.Password = filteredPassword
+
 	var user model.User
 
 	if db := database.DB.First(&user, "email = ?", input.Email); db.Error != nil {
@@ -83,7 +92,13 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	otp := rand.Int(rand.Reader, big.NewInt(1000))
+	passwordLength := int64(len(input.Password))
+	firstRandomPosition, _ := rand.Int(rand.Reader, big.NewInt(passwordLength))
+	input.Password = input.Password[:firstRandomPosition.Int64()] + "_" + input.Password[firstRandomPosition.Int64():]
+
+	passwordLength = int64(len(input.Password))
+	secondRandomPosition, _ := rand.Int(rand.Reader, big.NewInt(passwordLength))
+	input.Password = input.Password[:secondRandomPosition.Int64()] + "_" + input.Password[secondRandomPosition.Int64():]
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
 	if err != nil {
