@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"log"
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"net/http"
 	"strings"
 	"time"
@@ -30,7 +30,7 @@ func Login(c *gin.Context) {
 	input.Password = strings.TrimSpace(input.Password)
 
 	var user model.User
-	
+
 	if db := database.DB.First(&user, "email = ?", input.Email); db.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"no account found with given credentials"})
 		return
@@ -83,6 +83,8 @@ func Signup(c *gin.Context) {
 		return
 	}
 
+	otp := rand.Int(rand.Reader, big.NewInt(1000))
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{err.Error()})
@@ -93,7 +95,6 @@ func Signup(c *gin.Context) {
 
 	if err := database.DB.Create(&input); err.Error != nil {
 		var msg string
-		log.Println("\n" + err.Error.Error() + "\n")
 
 		if err.Error.Error()[61:66] == "email" {
 			msg = "email already registered"
@@ -201,7 +202,8 @@ func SendOtp(c *gin.Context) {
 		return
 	}
 
-	otp := rand.Intn(900000) + 100000
+	otp, _ := rand.Int(rand.Reader, big.NewInt(900000))
+	otp.Add(otp, big.NewInt(100000))
 
 	go util.SendEmail(input.Email, otp)
 

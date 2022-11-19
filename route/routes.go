@@ -1,8 +1,11 @@
 package route
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/its-me-debk007/Akatsuki_backend/controller"
+	"github.com/its-me-debk007/Akatsuki_backend/model"
 )
 
 func SetupRoutes(app *gin.Engine) {
@@ -38,5 +41,13 @@ func SetupRoutes(app *gin.Engine) {
 		}
 
 		api.GET("/search", controller.Search)
+
+		app.NoRoute(func(c *gin.Context) {
+			c.JSON(http.StatusNotFound, model.Message{"route doesn't exist"})
+		})
+
+		app.NoMethod(func(c *gin.Context) {
+			c.JSON(http.StatusMethodNotAllowed, model.Message{"method not allowed"})
+		})
 	}
 }

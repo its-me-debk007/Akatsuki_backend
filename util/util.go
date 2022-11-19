@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math/big"
 	"mime/multipart"
 	"net/smtp"
 	"os"
@@ -122,7 +123,7 @@ func IsValidPassword(password string) string {
 	}
 }
 
-func SendEmail(receiverEmail string, otp int) {
+func SendEmail(receiverEmail string, otp *big.Int) {
 	log.Printf("OTP for %s:- %d\n", receiverEmail, otp)
 
 	senderEmail := os.Getenv("SENDER_EMAIL")

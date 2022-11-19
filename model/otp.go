@@ -1,9 +1,12 @@
 package model
 
-import "time"
+import (
+	"math/big"
+	"time"
+)
 
 type Otp struct {
 	Email     string `gorm:"primarykey"`
-	Otp       int
+	Otp       *big.Int
 	CreatedAt time.Time
 }
