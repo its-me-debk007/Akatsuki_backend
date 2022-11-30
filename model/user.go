@@ -10,6 +10,7 @@ type User struct {
 	Password   string    `json:"password"    binding:"required"`
 	IsVerified bool      `json:"-"`
 	ProfilePic string    `json:"profile_pic"    gorm:"default:https://res.cloudinary.com/debk007cloud/image/upload/v1668334132/low-resolution-splashes-wallpaper-preview_weaxun.jpg"`
+	Token      string    `json:"-"`
 }
 
 // func (user *User) FillDefaults() {

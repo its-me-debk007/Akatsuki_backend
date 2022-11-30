@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 
 func CreatePost(c *gin.Context) {
 	username := c.GetHeader("username")
-	log.Println("Username is :- ", username)
 
 	form, err := c.MultipartForm()
 
@@ -79,5 +77,5 @@ func RandomPosts(c *gin.Context) {
 }
 
 func LikePost(c *gin.Context) {
-	
+
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"crypto/rand"
+	"log"
 	"math/big"
 	"net/http"
 	"strings"
@@ -35,7 +36,7 @@ func Login(c *gin.Context) {
 			filteredPassword += string(ch)
 		}
 	}
-	
+
 	input.Password = filteredPassword
 
 	var user model.User
@@ -121,43 +122,42 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, model.Message{"successfully signed up"})
+	charCollectionLength := int64(len(util.CharCollections))
+	link := c.Request.Host + "/api/v1/auth/verify?signup="
+	for i := 0; i < 40; i++ {
+		position, _ := rand.Int(rand.Reader, big.NewInt(charCollectionLength))
+		link += string(util.CharCollections[position.Int64()])
+	}
+
+	go util.SendEmail(input.Email, link)
+
+	c.JSON(http.StatusOK, model.Message{"successfully signed up & email sent"})
 }
 
-func VerifyOtp(c *gin.Context) {
-	input := new(struct {
-		Email string `json:"email"    binding:"required,email"`
-		Otp   int    `json:"otp"    binding:"required"`
-	})
+func Verify(c *gin.Context) {
+	signup := c.Query("signup")
+	forgotPassword := c.Query("forgot-password")
 
-	if err := c.ShouldBindJSON(input); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{err.Error()})
+	var user model.User
+
+	if signup != "" {
+		if db := database.DB.First(&user, "token = ?", signup); db.Error != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"invalid token"})
+			return
+		}
+	} else {
+		if db := database.DB.First(&user, "token = ?", forgotPassword); db.Error != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"invalid token"})
+			return
+		}
+	}
+
+	if timeDiff := time.Since(user.CreatedAt); timeDiff > (time.Minute * 5) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"link expired"})
 		return
 	}
 
-	input.Email = strings.TrimSpace(input.Email)
-	input.Email = strings.ToLower(input.Email)
-
-	otpStruct := model.Otp{}
-
-	database.DB.First(&otpStruct, "email = ?", input.Email)
-
-	if otpStruct.Email == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp not generated yet"})
-		return
-	}
-
-	if timeDiff := time.Now().Sub(otpStruct.CreatedAt); timeDiff > (time.Minute * 5) {
-		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp expired"})
-		return
-	}
-
-	if otpStruct.Otp != input.Otp {
-		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"otp incorrect"})
-		return
-	}
-
-	database.DB.Model(&model.User{}).Where("email = ?", input.Email).Update("is_verified", true)
+	// database.DB.Model(&model.User{}).Where(" = ?", token).Update("is_verified", true)
 
 	c.JSON(http.StatusOK, model.Message{"otp verified successfully"})
 }
@@ -195,7 +195,7 @@ func ResetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, model.Message{"successfully changed password"})
 }
 
-func SendOtp(c *gin.Context) {
+func ForgotPassword(c *gin.Context) {
 	input := new(struct {
 		Email string `json:"email"    binding:"required,email"`
 	})
@@ -208,30 +208,21 @@ func SendOtp(c *gin.Context) {
 	input.Email = strings.TrimSpace(input.Email)
 	input.Email = strings.ToLower(input.Email)
 
-	var user model.User
+	charCollectionLength := int64(len(util.CharCollections))
+	link := c.Request.Host + "/api/v1/auth/verify?forgot-password="
+	for i := 0; i < 40; i++ {
+		position, _ := rand.Int(rand.Reader, big.NewInt(charCollectionLength))
+		link += string(util.CharCollections[position.Int64()])
+	}
 
-	database.DB.First(&user, "email = ?", input.Email)
+	log.Printf("LINK IS %s\n", link)
 
-	if user.Email == "" {
+	if db := database.DB.Model(&model.User{}).Where("email = ?", input.Email).Update("ActivationString", link); db.Error != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Message{"user not registered"})
 		return
 	}
 
-	otp, _ := rand.Int(rand.Reader, big.NewInt(900000))
-	otp.Add(otp, big.NewInt(100000))
+	go util.SendEmail(input.Email, link)
 
-	go util.SendEmail(input.Email, otp)
-
-	otpStruct := model.Otp{
-		Email:     input.Email,
-		Otp:       otp,
-		CreatedAt: time.Now(),
-	}
-
-	if db := database.DB.Save(&otpStruct); db.Error != nil {
-		c.AbortWithStatusJSON(http.StatusBadGateway, model.Message{db.Error.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, model.Message{"otp sent successfully"})
+	c.JSON(http.StatusOK, model.Message{"reset link sent successfully"})
 }

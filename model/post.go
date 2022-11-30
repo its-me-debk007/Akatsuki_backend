@@ -17,5 +17,5 @@ type Post struct {
 	LikedByUser     bool   `json:"liked_by_user"`
 	CommentedByUser bool   `json:"commented_by_user"`
 	AuthorUsername  string `json:"-"`
-	Author          User   `json:"author" gorm:"foreign_key:AuthorUsername"`
+	Author          User   `json:"author" gorm:"foreign_key:AuthorUsername;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }

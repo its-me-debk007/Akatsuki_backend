@@ -8,9 +8,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/its-me-debk007/Akatsuki_backend/database"
-	"github.com/its-me-debk007/Akatsuki_backend/model"
 	"github.com/its-me-debk007/Akatsuki_backend/route"
-	"github.com/its-me-debk007/Akatsuki_backend/util"
 	"github.com/joho/godotenv"
 )
 
@@ -23,8 +21,7 @@ func main() {
 
 	app := gin.Default()
 
-	app.Use(gin.Recovery())
-	app.Use(middleWare)
+	// app.Use(middleWare)
 
 	app.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
@@ -41,26 +38,4 @@ func main() {
 	if err := app.Run(":" + port); err != nil {
 		log.Fatal("App listen error:-\n" + err.Error())
 	}
-}
-
-func middleWare(c *gin.Context) {
-	url := c.Request.URL
-
-	if !(url.Path[7:12] == "/auth" || url.Path == "/api/v1/posts/random") {
-		header := c.GetHeader("Authorization")
-		if header == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{"no token provided"})
-		}
-
-		token := header[7:]
-
-		username, err := util.ParseToken(token, true)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Message{err.Error()})
-			return
-		}
-
-		c.Request.Header.Set("username", username)
-	}
-	// c.Next()
 }

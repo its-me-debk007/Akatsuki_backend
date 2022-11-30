@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"math/big"
 	"mime/multipart"
 	"net/smtp"
 	"os"
@@ -22,8 +21,9 @@ import (
 )
 
 const (
-	SMTP_HOST = "smtp.gmail.com"
-	SMTP_PORT = "587"
+	SMTP_HOST       = "smtp.gmail.com"
+	SMTP_PORT       = "587"
+	CharCollections = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-._"
 )
 
 func GenerateToken(username string, subject string, expirationTime time.Duration) (string, error) {
@@ -123,8 +123,7 @@ func IsValidPassword(password string) string {
 	}
 }
 
-func SendEmail(receiverEmail string, otp *big.Int) {
-	log.Printf("OTP for %s:- %d\n", receiverEmail, otp)
+func SendEmail(receiverEmail string, link string) {
 
 	senderEmail := os.Getenv("SENDER_EMAIL")
 	senderPassword := os.Getenv("SENDER_PASSWORD")
@@ -144,7 +143,7 @@ func SendEmail(receiverEmail string, otp *big.Int) {
 	buffer := new(bytes.Buffer)
 
 	t.Execute(buffer, gin.H{
-		"otp": otp,
+		"link": link,
 	})
 
 	msg := []byte(subject + mime + buffer.String())
@@ -153,7 +152,7 @@ func SendEmail(receiverEmail string, otp *big.Int) {
 		log.Fatalln("SEND EMAIL ERROR", err.Error())
 	}
 
-	log.Printf("OTP SENT TO %s", receiverEmail)
+	log.Printf("LINK SENT TO %s", receiverEmail)
 }
 
 func UploadMedia(file multipart.File, id time.Time) (string, error) {
