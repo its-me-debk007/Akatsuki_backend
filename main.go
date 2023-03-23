@@ -16,7 +16,7 @@ import (
 
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
-		log.Fatalln("ENV LOADING ERROR", err.Error())
+		log.Fatalln("ERROR LOADING ENV", err.Error())
 	}
 
 	database.ConnectDatabase()
@@ -62,5 +62,4 @@ func middleWare(c *gin.Context) {
 
 		c.Request.Header.Set("username", username)
 	}
-	// c.Next()
 }
