@@ -47,7 +47,7 @@ func GenerateToken(username string, subject string, expirationTime time.Duration
 	return token, nil
 }
 
-func ParseToken(tokenString string) (string, error) {
+func ParseToken(tokenString string, typeShouldBeAccess bool) (string, error) {
 	secretKey := os.Getenv("SECRET_KEY")
 
 	registeredClaims := jwt.RegisteredClaims{}
@@ -56,16 +56,28 @@ func ParseToken(tokenString string) (string, error) {
 		return []byte(secretKey), nil
 	})
 
-	if err != nil {
-		return "", errors.New("invalid token")
+	var errorMsg string
+	db := database.DB.First(&model.User{}, "username = ?", registeredClaims.Issuer)
+
+	switch {
+	case err != nil:
+		errorMsg = "invalid token"
+
+	case typeShouldBeAccess && registeredClaims.Subject != "ACCESS":
+		errorMsg = "invalid token (required type is access token)"
+
+	case !typeShouldBeAccess && registeredClaims.Subject == "ACCESS":
+		errorMsg = "invalid token (required type is refresh token)"
+
+	case db.Error != nil:
+		errorMsg = "user not signed up"
+
+	case time.Since(registeredClaims.ExpiresAt.Time) >= 0:
+		errorMsg = "token expired"
 	}
 
-	if db := database.DB.First(&model.User{}, "username = ?", registeredClaims.Issuer); db.Error != nil {
-		return "", errors.New("user not signed up")
-	}
-
-	if time.Since(registeredClaims.ExpiresAt.Time) >= 0 {
-		return "", errors.New("token expired")
+	if errorMsg != "" {
+		return "", errors.New(errorMsg)
 	}
 
 	return registeredClaims.Issuer, nil
@@ -140,7 +152,7 @@ func SendEmail(receiverEmail string, otp int) {
 		log.Fatalln("SEND EMAIL ERROR", err.Error())
 	}
 
-	log.Println("OTP SENT")
+	log.Printf("OTP SENT TO %s", receiverEmail)
 }
 
 func UploadMedia(file multipart.File, id time.Time) (string, error) {
