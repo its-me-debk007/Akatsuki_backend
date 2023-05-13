@@ -8,7 +8,7 @@ services:
     container_name: "postgres"
 
     volumes:
-      - ./data/postgres:/var/lib/postgres/data
+      - database_postgres:/var/lib/postgresql/data
 
     ports:
       - "5432:5432"
@@ -25,13 +25,13 @@ services:
     networks:
       - fullstack
 
-  web:
+  server:
     build: .
 
-    container_name: "rest_api"
+    container_name: "rest_api_server"
 
     ports:
-      - "80:80"
+      - "8081:8081"
 
     # environvent values already taken from .env file
 

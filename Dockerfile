@@ -15,4 +15,4 @@ RUN go build -o akatsuki
 
 EXPOSE 8081
 
-CMD [ "./akatsuki" ]
+CMD ./akatsuki
