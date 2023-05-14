@@ -4,47 +4,28 @@ services:
 
   postgres_db:
     image: postgres:alpine
-
     container_name: "postgres"
-
     volumes:
       - database_postgres:/var/lib/postgresql/data
-
     ports:
       - "5432:5432"
-
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=12345
       - POSTGRES_DB=akatsuki
-
     deploy:
       restart_policy:
         condition: on-failure
 
-    networks:
-      - fullstack
-
   server:
     build: .
-
+    image: akatsuki
     container_name: "rest_api_server"
-
     ports:
       - "8081:8081"
-
-    # environvent values already taken from .env file
-
+    # env values already taken from .env
     depends_on:
       - postgres_db
 
-    networks:
-      - fullstack
-
 volumes:
   database_postgres:
-
-
-networks:
-  fullstack:
-    driver: bridge
