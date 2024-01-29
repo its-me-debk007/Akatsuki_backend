@@ -11,7 +11,7 @@ require (
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.18.0
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 )
 
 require (
