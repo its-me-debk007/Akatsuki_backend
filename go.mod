@@ -1,6 +1,7 @@
 module github.com/its-me-debk007/Akatsuki_backend
 
-go 1.20
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
@@ -12,7 +13,7 @@ require (
 	github.com/lib/pq v1.10.9
 	golang.org/x/crypto v0.36.0
 	gorm.io/driver/postgres v1.5.11
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.26.1
 )
 
 require (
