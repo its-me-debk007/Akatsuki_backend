@@ -1,10 +1,10 @@
 module github.com/its-me-debk007/Akatsuki_backend
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/cloudinary/cloudinary-go v1.7.0
-	github.com/gin-contrib/cors v1.7.9
+	github.com/gin-contrib/cors v1.7.10
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
