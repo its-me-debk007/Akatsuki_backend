@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	github.com/cloudinary/cloudinary-go v1.7.0
-	github.com/gin-contrib/cors v1.7.10
+	github.com/gin-contrib/cors v1.7.11
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
@@ -48,7 +48,7 @@ require (
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.8.0 // indirect
 	golang.org/x/arch v0.29.0 // indirect
-	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
